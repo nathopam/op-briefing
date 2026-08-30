@@ -216,6 +216,9 @@ const SEQ = [
 /* ============================================================ */
 const feed=document.getElementById('feed'), cursor=document.getElementById('cursor');
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* Reduce Motion (iOS Settings > Accessibility > Motion) kills the CRT flicker and
+   smooth scroll, but the typing still runs — just a bit quicker. */
+const MULT = reduce ? OP.speed*0.6 : OP.speed;
 const ctl=document.getElementById('audioctl'), dock=document.getElementById('ytdock');
 const audio=document.getElementById('track');
 const useMp3=!!OP.musicSrc;
@@ -295,8 +298,8 @@ ctl.addEventListener('click',()=>{
 
 async function run(){
   for(const [text,cls,speed] of SEQ){
-    await typeLine(text,cls,reduce?0:speed*OP.speed);
-    await wait(reduce?0:(text?260:520)*OP.speed);
+    await typeLine(text,cls,speed*MULT);
+    await wait((text?260:520)*MULT);
   }
   await progress("DOSSIER");
   cursor.style.display='none';
@@ -324,8 +327,8 @@ function progress(label){
       p=Math.min(100,p+Math.random()*7+2);
       const f=Math.round(p/4);
       el.textContent=`  ${label} [${'█'.repeat(f)}${'░'.repeat(25-f)}] ${String(Math.floor(p)).padStart(3)}%`;
-      const pause=(60+Math.random()*180)*OP.speed;   // uneven, like a real uplink
-      p<100 ? setTimeout(step,reduce?0:pause) : setTimeout(res,700);
+      const pause=(60+Math.random()*180)*MULT;   // uneven, like a real uplink
+      p<100 ? setTimeout(step,pause) : setTimeout(res,700);
     };
     step();
   });
